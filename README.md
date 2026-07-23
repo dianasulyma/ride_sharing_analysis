@@ -20,7 +20,7 @@ Analysis of ~8.6M bike-share trips from Bixi Montréal (2016–2017) examening r
 
 ## Ridership growth, 2016 → 2017
 
-![Percent of trips per month](tableau/screenshots/02_pct_trips_per_month.png)
+![Monthly trips 2016 vs 2017](tableau/screenshots/01_monthly_trips_2016_2017.png)
 
 ## Membership
 
