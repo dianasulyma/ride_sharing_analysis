@@ -1,0 +1,16 @@
+# Source data — too large for git, publicly available instead
+data/*.csv
+data/*.zip
+*.sql.gz
+
+# Tableau
+*.twbr
+*.twbx.bak
+Book*.twb
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*~
