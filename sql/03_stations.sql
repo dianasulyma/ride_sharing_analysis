@@ -1,20 +1,12 @@
-/* =============================================================================
-   03_stations.sql — Station-level demand and flow
-   -----------------------------------------------------------------------------
-   Business question: which stations carry the load, and where does the system
-   run out of balance? Feeds the Tableau station maps.
-   ============================================================================= */
+/* 
+Station-level demand and flow
+*/
 
 USE bixi;
 
--- -----------------------------------------------------------------------------
+
 -- Q1. Top 5 origin stations
--- -----------------------------------------------------------------------------
--- INNER JOIN, not RIGHT JOIN. The original used RIGHT JOIN with stations on the
--- left, which reads as "keep all trips" — but grouping by stations.name then
--- collapses any unmatched trips into a single NULL-named row. If the intent is
--- to surface orphaned station codes, that belongs in the setup sanity checks,
--- not silently inside a top-N ranking.
+
 SELECT
     s.name          AS station_name,
     COUNT(*)        AS trips_started
@@ -24,11 +16,9 @@ GROUP BY s.code, s.name
 ORDER BY trips_started DESC
 LIMIT 5;
 
--- -----------------------------------------------------------------------------
+
 -- Q2. Full station ranking with cumulative share
--- -----------------------------------------------------------------------------
--- Shows how concentrated demand is: if the top 10% of stations carry half the
--- trips, rebalancing effort should be targeted rather than uniform.
+
 WITH station_volume AS (
     SELECT
         s.code,
@@ -51,16 +41,9 @@ SELECT
 FROM station_volume
 ORDER BY trips_started DESC;
 
--- -----------------------------------------------------------------------------
+
 -- Q3. Time-of-day flow profile for a station
--- -----------------------------------------------------------------------------
--- The original ran six near-identical queries (morning/afternoon/evening
--- x starts/ends) and recorded each result in a comment. One conditional
--- aggregation returns the same information as a single readable result set,
--- and adds the net flow column that actually answers the question.
---
--- Net flow is the operational signal: persistently negative means the station
--- empties out and needs bikes trucked in.
+
 SELECT
     s.name AS station_name,
     SUM(CASE WHEN HOUR(t.start_date) BETWEEN  7 AND 11 THEN 1 ELSE 0 END) AS morning_starts,
@@ -71,10 +54,7 @@ JOIN stations s ON s.code = t.start_station_code
 WHERE s.name LIKE 'Namur%'
 GROUP BY s.code, s.name;
 
--- Departures and arrivals in one pass, via a union of the two directions.
--- Note the fix to the original: arrival buckets there were keyed on
--- HOUR(start_date), the departure timestamp, so an evening arrival from an
--- afternoon departure landed in the wrong bucket. Here arrivals use end_date.
+
 WITH flows AS (
     SELECT start_station_code AS station_code, HOUR(start_date) AS hr,  1 AS departure, 0 AS arrival
     FROM trips
@@ -99,11 +79,9 @@ WHERE s.name LIKE 'Namur%'
 GROUP BY s.name, time_block
 ORDER BY s.name, FIELD(time_block, 'Morning (07-11)', 'Afternoon (12-16)', 'Evening (17-21)', 'Off-peak');
 
--- -----------------------------------------------------------------------------
+
 -- Q4. Station-level metrics for the Tableau map extract
--- -----------------------------------------------------------------------------
--- One row per station with coordinates and every measure the maps need, so
--- Tableau connects to a single clean result rather than blending three sheets.
+
 SELECT
     s.code,
     s.name AS station_name,
