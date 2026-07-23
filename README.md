@@ -1,4 +1,4 @@
-# Bixi Bike Share — SQL Analysis & Tableau Reporting
+# Montreal BIXI Bike Share — SQL Analysis & Tableau Reporting
 
 Analysis of ~8.6M bike-share trips from Bixi Montréal (2016–2017) examening ridership growth, membership segmentation, demand per station, and casual-user revenue.
 
